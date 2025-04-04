@@ -22,6 +22,3 @@ class GuestInfoRetrieverTool(Tool):
             return "\n\n".join([doc.page_content for doc in results[:3]])
         else:
             return "No matching guest information found."
-
-# Initialize the tool
-guest_info_tool = GuestInfoRetrieverTool(docs)
