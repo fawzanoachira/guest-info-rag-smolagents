@@ -1,5 +1,8 @@
 from smolagents import Tool
 from langchain_community.retrievers import BM25Retriever
+from langchain.docstore.document import Document
+import datasets
+
 
 class GuestInfoRetrieverTool(Tool):
     name = "guest_info_retriever"
@@ -7,7 +10,7 @@ class GuestInfoRetrieverTool(Tool):
     inputs = {
         "query": {
             "type": "string",
-            "description": "The name or relation of the guest you want information about."
+            "description": "The name or relation of the guest you want information about.",
         }
     }
     output_type = "string"
@@ -22,3 +25,26 @@ class GuestInfoRetrieverTool(Tool):
             return "\n\n".join([doc.page_content for doc in results[:3]])
         else:
             return "No matching guest information found."
+
+
+def load_guest_dataset():
+    # Load the dataset
+    guest_dataset = datasets.load_dataset("agents-course/unit3-invitees", split="train")
+
+    # Convert dataset entries into Document objects
+    docs = [
+        Document(
+            page_content="\n".join(
+                [
+                    f"Name: {guest['name']}",
+                    f"Relation: {guest['relation']}",
+                    f"Description: {guest['description']}",
+                    f"Email: {guest['email']}",
+                ]
+            ),
+            metadata={"name": guest["name"]},
+        )
+        for guest in guest_dataset
+    ]
+
+    return GuestInfoRetrieverTool(docs)
