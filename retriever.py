@@ -21,14 +21,19 @@ class GuestInfoRetrieverToolST(Tool):
         self.is_initialized = False
         self.model = SentenceTransformer("multi-qa-mpnet-base-dot-v1")
         self.documents = documents
-        docs = [doc.page_content for doc in self.documents]
-        self.embedded_documents = self.model.encode(docs)
+        self.docs = [doc.page_content for doc in self.documents]
+        self.embedded_documents = self.model.encode(self.docs)
 
-    def forward(self, query):
+    def forward(self, query: str):
         query_embedding = self.model.encode(query)
-        top_match = util.semantic_search(query_embedding, self.embedded_documents)[0][0]
-        result_index = top_match['corpus_id']
-        return self.documents[result_index]
+        top_match = util.semantic_search(query_embedding, self.embedded_documents, top_k=3)[0]
+        result_indexes = [match['corpus_id'] for match in top_match]
+        result_index = [self.documents[i] for i in result_indexes]
+
+        if result_index:
+            return "\n\n".join([doc.page_content for doc in result_index])
+        else:
+            return "No matching guest information found."
 
 
 class GuestInfoRetrieverTool(Tool):
@@ -74,4 +79,4 @@ def load_guest_dataset():
         for guest in guest_dataset
     ]
 
-    return GuestInfoRetrieverTool(docs)
+    return GuestInfoRetrieverToolST(docs)
