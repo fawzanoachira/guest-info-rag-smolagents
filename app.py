@@ -4,7 +4,7 @@ from smolagents import CodeAgent, HfApiModel, GradioUI
 from tools import HubStatsTool, WeatherInfoTool, DuckDuckGoSearchTool
 from retriever import load_guest_dataset
 
-hf_api = "REMOVED"
+hf_api = os.getenv("hf_api")
 
 client = InferenceClient(
 	provider="fireworks-ai",

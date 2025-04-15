@@ -1,7 +1,11 @@
 from smolagents import Tool, DuckDuckGoSearchTool
 from huggingface_hub import list_models
 
-import random
+import random, requests
+import os
+
+OPENWEATHER_API = "REMOVED"
+# OPENWEATHER_API = os.getenv('OPENWEATHER_API')
 
 
 class WeatherInfoTool(Tool):
@@ -17,15 +21,38 @@ class WeatherInfoTool(Tool):
 
     def forward(self, location: str):
         # Dummy weather data
-        weather_conditions = [
-            {"condition": "Rainy", "temp_c": 15},
-            {"condition": "Clear", "temp_c": 25},
-            {"condition": "Windy", "temp_c": 20},
-        ]
-        # Randomly select a weather condition
-        data = random.choice(weather_conditions)
-        return f"Weather in {location}: {data['condition']}, {data['temp_c']}°C"
+        # weather_conditions = [
+        #     {"condition": "Rainy", "temp_c": 15},
+        #     {"condition": "Clear", "temp_c": 25},
+        #     {"condition": "Windy", "temp_c": 20},
+        # ]
+        # # Randomly select a weather condition
+        # data = random.choice(weather_conditions)
+        # return f"Weather in {location}: {data['condition']}, {data['temp_c']}°C"
 
+        geo_response = requests.get(f"http://api.openweathermap.org/geo/1.0/direct?q={location}&appid={OPENWEATHER_API}")
+        lat = geo_response.json()[0]["lat"]
+        lon = geo_response.json()[0]["lon"]
+
+        weather_response = requests.get(f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={OPENWEATHER_API}")
+        data = weather_response.json()
+
+        weather = data['weather'][0]
+        main = data['main']
+        wind = data['wind']
+
+        # Convert Kelvin to Celsius
+        temp_celsius = main['temp'] - 273.15
+
+        weather_info = (
+            f"📍 Weather Report for {location}:\n"
+            f"🌤 Condition   : {weather['main']} - {weather['description'].capitalize()}\n"
+            f"🌡 Temperature : {temp_celsius:.1f}°C\n"
+            f"💧 Humidity    : {main['humidity']}%\n"
+            f"🌬 Wind Speed  : {wind['speed']} m/s"
+        )
+
+        return weather_info
 
 class HubStatsTool(Tool):
     name = "hub_stats"
