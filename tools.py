@@ -4,7 +4,6 @@ from huggingface_hub import list_models
 import random, requests
 import os
 
-OPENWEATHER_API = "REMOVED"
 # OPENWEATHER_API = os.getenv('OPENWEATHER_API')
 
 
