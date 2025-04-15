@@ -10,7 +10,7 @@ OPENWEATHER_API = "REMOVED"
 
 class WeatherInfoTool(Tool):
     name = "weather_info"
-    description = "Fetches dummy weather information for a given location."
+    description = "Fetches weather information for a given location."
     inputs = {
         "location": {
             "type": "string",
