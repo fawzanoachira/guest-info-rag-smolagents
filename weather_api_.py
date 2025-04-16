@@ -1,6 +1,6 @@
 import requests
 
-API_key = 'API_KEY'
+API_key = ''
 
 lat_response = requests.get(
     f'http://api.openweathermap.org/geo/1.0/direct?q=alappuzha&appid={API_key}'
